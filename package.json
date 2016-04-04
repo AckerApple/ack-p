@@ -8,8 +8,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:virgindata/ack-p.git"
-  }
+    "url": "https://github.com/AckerApple/ack-p.git"
+  },
   "author": "Acker Apple",
   "license": "ISC",
   "devDependencies": {

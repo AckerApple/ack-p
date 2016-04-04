@@ -22,9 +22,9 @@ function ackPromise(resolver){
 }
 
 /** all arguments are used to jump start a thenable promise */
-ackPromise.resolve = function(){
+ackPromise.resolve = function(v0,v1,v2,v3){
   var promise = new ackP()
-  promise = promise.set()
+  promise = promise.set.apply(promise,arguments)
   return promise
 }
 
