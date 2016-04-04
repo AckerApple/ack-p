@@ -30,7 +30,7 @@ This project is absolutely fond of [bluebird](http://bluebirdjs.com) but it does
   })
 ```
 - ackP does not automatically error by default if no catch is chained to a running promise. Instead, not catching promise errors works just like ECMA6 Promises.
-- ackP has ackP.if(condition, thenable) <- This thenable, is only executed when the condition evaluates truthy
+- ackP has ackP.if(condition, thenable) <- This thenable, is only executed when the condition evaluates true
 - ackP can catch errors by type-name -> ackP.catch('TypeError', thenable)
 
 ## bluebird Specific Features Not Yet Added

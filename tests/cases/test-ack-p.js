@@ -1594,6 +1594,20 @@ console.log('56',22)
       .then(done).catch(done)
     })
 
+    it('precise',function(done){
+      p.set(1)
+      .if(true,function(r,f){
+        throw new Error('i should have not run')
+      })
+      .if(1,function(r){
+        return 22
+      })
+      .then(function(r){
+        assert.equal(r, 22)
+      })
+      .then(done).catch(done)
+    })
+
     it('#ifNot',function(done){
       p.set(33,55)
       .ifNot(33,function(r){

@@ -93,7 +93,7 @@ ackPromise.createIf = function(promise, condition, $scope, onTrue, isTruthMode){
     }
   }else{
     var processCondition = function(args, next, scope){
-      var result = args[0]==condition
+      var result = args[0]===condition
       next.call(scope, result)
     }
   }
@@ -404,6 +404,9 @@ ackP.prototype['catch'] = function(typeOrMethod, method){
 /** alias for compatibility with earlier ECMAScript version */
 ackP.prototype.caught = ackP.prototype['catch']
 
+/**
+  @condition - if condition is not a method, then value must strictly match condition. If condition is method, condition only must return truthy
+*/
 ackP.prototype['if'] = function(condition,method,scope){
   return ackPromise.createIf(this, condition, scope, function(args, next){
     var mr = method.apply(this, args)
