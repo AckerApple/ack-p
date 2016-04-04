@@ -4,7 +4,10 @@
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
-    "test": "mocha ./tests/cases/ --recursive --watch"
+    "test": "mocha ./tests/cases/ --recursive --watch",
+    "watch": "webpack --watch --progress",
+    "pack": "webpack --progress",
+    "start": "webpack-dev-server --content-base ./"
   },
   "repository": {
     "type": "git",
