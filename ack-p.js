@@ -9,16 +9,14 @@ function objectKeys(ob){
   return array
 }
 
-/** function(resolve,reject){} */
+/** constructor. Invoke by new ackPromise()
+  @resolver - function(resolve,reject){}
+*/
 function ackPromise(resolver){
-  var promise = new ackP()
-  function resolve(){
-    return promise.resolve.apply(promise,arguments)
-  }
-  function reject(){
-    return promise.throw.apply(promise,arguments)
-  }
-  return resolver(resolve,reject)
+  return new ackP()
+  .next(function(next){
+    resolver(next, next.throw)
+  })
 }
 
 /** all arguments are used to jump start a thenable promise */

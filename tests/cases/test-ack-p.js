@@ -244,6 +244,20 @@ console.log('56',22)
     assert.equal(p.inpass==null,true)
   })
 
+  it('constructor',function(done){
+    new ackP(function(resolve,reject){
+      setTimeout(function(){//arbitrary async timeout
+        resolve('a','b','c')
+      }, 10)
+    })
+    .then(function(a,b,c){
+      assert(a,'a')
+      assert(b,'b')
+      assert(c,'c')
+    })
+    .then(done).catch(done)
+  })
+
   describe('Other-Libraries',function(){
     if(Promise){
       describe('ECMA6 Promise',function(){

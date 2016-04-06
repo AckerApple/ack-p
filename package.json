@@ -1,6 +1,6 @@
 {
   "name": "ack-p",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
