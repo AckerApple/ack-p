@@ -664,7 +664,7 @@ ackP.prototype.method = ackP.prototype.then//respect the blue bird
 ackP.rejectedThen = function(method,scope){
   /* !extremely important! - This connects ackP promises with native promises */
   if(this._rejected && method.toString()==nativePromiseThen.toString() ){
-    throw err//This will reject to the native promise. I have already been rejected and a native promise is trying to chain onto me
+    throw this._rejected//This will reject to the native promise. I have already been rejected and a native promise is trying to chain onto me
   }
 
   return this.add({method:method, context:scope, isAsync:false})

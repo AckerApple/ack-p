@@ -1,12 +1,12 @@
 {
   "name": "ack-p",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
     "test": "mocha ./tests/cases/ --recursive --watch",
     "watch": "webpack --watch --progress",
-    "pack": "webpack --progress",
+    "build": "webpack --progress",
     "start": "webpack-dev-server --content-base ./"
   },
   "repository": {
@@ -16,7 +16,8 @@
   "author": "Acker Apple",
   "license": "ISC",
   "devDependencies": {
+    "bluebird": "^3.3.4",
     "mocha": "^2.4.5",
-    "bluebird": "^3.3.4"
+    "webpack": "^1.13.1"
   }
 }
