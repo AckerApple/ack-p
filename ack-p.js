@@ -467,14 +467,18 @@ ackP.prototype.setNextPromise = function(np){
     return np
 }
 
-ackP.prototype.add = function(options){
-  if(options.method==null){
-    this['throw'].call(this,'promise task undefined')
-    var e = new Error('promise task undefined')
-    e.name = 'promise task undefined'
+ackP.prototype.assertMethod = function(method){
+  if(method==null){
+    var msg = 'Promise thenable undefined. Most likely due to a Promise.then() that is an undefined variable.'
+    this['throw'].call(this,msg)
+    var e = new Error(msg)
+    e.name = msg
     throw e
   }
+}
 
+ackP.prototype.add = function(options){
+  this.assertMethod(options.method)
   this.paramData()
 //???
   if( isPromiseLike(options.method) ){
@@ -704,6 +708,8 @@ ackP.prototype.spreadCallback = function(method,scope){
 
 //async-method aka promisify
 ackP.prototype.callback = function(method,scope){
+  this.assertMethod(options.method)//since an override method is provided, lets check the one we are recieving now instead of when we need it
+
   var fireMethod = function(){
     var bind = scope||this
     var prom = ackPromise.start()
