@@ -480,20 +480,18 @@ ackP.prototype.assertMethod = function(method){
 ackP.prototype.add = function(options){
   this.assertMethod(options.method)
   this.paramData()
-//???
+
   if( isPromiseLike(options.method) ){
-  var nextp = options.method
-  options.method = function(){
-    return nextp
-  }
-    var newp = ackPromise.start().add(options)//.bind(this.data.context)
-    return this.setNextPromise( newp )//options.method
+    var nextp = options.method
+    options.method = function(){return nextp}
+    var newp = ackPromise.start().add(options)
+    return this.setNextPromise( newp )
   }
 
   if(this.data.getNextPromise){
     return this.data.getNextPromise().add(options)
   }else if(this.data.task){
-    var np = ackPromise.start()//.paramData()
+    var np = ackPromise.start()
     this.setNextPromise(np)
     np.data.waiting = 1
     np.add(options)
@@ -506,7 +504,6 @@ ackP.prototype.add = function(options){
   }
 
   this.data.task = options//first added task
-  //this.data.context = this.nextContext
 
   if(this.data.waiting===0){//?already done process, put back into process
     this.processor.apply(this, this.values)
