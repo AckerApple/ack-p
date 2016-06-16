@@ -705,7 +705,7 @@ ackP.prototype.spreadCallback = function(method,scope){
 
 //async-method aka promisify
 ackP.prototype.callback = function(method,scope){
-  this.assertMethod(options.method)//since an override method is provided, lets check the one we are recieving now instead of when we need it
+  this.assertMethod(method)//since an override method is provided, lets check the one we are recieving now instead of when we need it
 
   var fireMethod = function(){
     var bind = scope||this
