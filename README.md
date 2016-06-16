@@ -4,69 +4,69 @@ Extra full featured Promise-like implementation, that works with and just like y
 ## Example: Create Your Own NEW Promise
 Note: Constructing your own new promise, is only needed when an existing process-flow is async but is not a thenable
 ```
-  new ackP(function(resolve,reject){
-    setTimeout(function(){//arbitrary async timeout
-      resolve('a','b','c')
-    }, 10)
-  })
-  .then(function(a,b,c){
-    assert(a,'a')
-    assert(b,'b')
-    assert(c,'c')
-  })
+new ackP(function(resolve,reject){
+  setTimeout(function(){//arbitrary async timeout
+    resolve('a','b','c')
+  }, 10)
+})
+.then(function(a,b,c){
+  assert(a,'a')
+  assert(b,'b')
+  assert(c,'c')
+})
 ```
 
 ## Example: Spread Position-Values into Argument-Positions
 Note: Other promise libraries that "chain" into ackP, will only receive the first argument
 ```
-  ackP.resolve('a','b','c')
-  .spread()
-  .then(function(a,b,c){
-    assert(a,'a')
-    assert(b,'b')
-    assert(c,'c')
-  })
+ackP.resolve('a','b','c')
+.spread()
+.then(function(a,b,c){
+  assert(a,'a')
+  assert(b,'b')
+  assert(c,'c')
+})
 ```
 
 ## Example: Spread Arrays into Argument-Positions
 Note: Other promise libraries that "chain" into ackP, will only receive the first argument
 ```
-  ackP.resolve(['a','b','c'])
-  .spread()
-  .then(function(a,b,c){
-    assert(a,'a')
-    assert(b,'b')
-    assert(c,'c')
-  })
+ackP.resolve(['a','b','c'])
+.spread()
+.then(function(a,b,c){
+  assert(a,'a')
+  assert(b,'b')
+  assert(c,'c')
+})
 ```
 
 ## Example: Conditional Thenable
 ```
-  ackP.resolve(22)
-  .if(33,function(){
-    throw 'I wish I was 22'
-  })
-  .if(22,function(){
-    return [88,99];
-  })
-  .spread(function(a,b){
-    assert.equal(a, 88)
-    assert.equal(b, 99)
-  })
+ackP.resolve(22)
+.if(33,function(){
+  throw 'I wish I was 22'
+})
+.if(22,function(){
+  return [88,99];
+})
+.spread(function(a,b){
+  assert.equal(a, 88)
+  assert.equal(b, 99)
+})
 ```
 
 ## Example: Spread Callback-Argument-Positions into Argument-Positions
 ```
-  ackP.resolve('a')
-  .callback(function(a, next){
-    assert.equal(a, 'a')
-    next(null, a,'b','c')
-  })
-  .then(function(a,b,c){
-    assert(a,'a')
-    assert(b,'b')
-    assert(c,'c')
-  })
+ackP.resolve('a')
+.callback(function(a, next){
+  assert.equal(a, 'a')
+  next(null, a,'b','c')
+})
+.then(function(a,b,c){
+  assert(a,'a')
+  assert(b,'b')
+  assert(c,'c')
+})
 ```
 
 This code library was originally one persons efforts to make async functionality cleaner and easier to achieve, back in the IE6 years. Now, this code has been matured into a Promise library specfically intended to stay competitive with [bluebird](http://bluebirdjs.com) but ackP is intended to do Promises with a different approach without the restrictions of the Promises/A+ spefication that [bluebird](http://bluebirdjs.com) adheres to.
