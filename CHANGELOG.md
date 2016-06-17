@@ -5,6 +5,10 @@ All notable changes to this project will be documented here.
 ### Added
 - more docs
 
+## [0.0.4] - 2016-06-16
+### Added
+- more docs
+
 ## [0.0.3] - 2016-06-09
 ### Added
 - Changelog
