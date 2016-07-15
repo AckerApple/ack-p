@@ -66,6 +66,21 @@ describe('ackP',function(){
     */
   })
 
+  it.only('then-array',function(done){
+    p.resolve(11,22,33)
+    .then(function(){
+      return [ackP.resolve(44), ackP.resolve(55), ackP.resolve(66)]
+    })
+    .map(function(x){return x})//array-of-promises to array-of-values
+    .then(function(a){
+      assert.equal(a.length, 3)
+      assert.equal(a[0], 44)
+      assert.equal(a[1], 55)
+      assert.equal(a[2], 66)
+    })
+    .then(done).catch(done)
+  })
+
   it('#inspect',function(done){
     p.resolve(11,22,33)
     .inspect(function(promise, a, b, c){
