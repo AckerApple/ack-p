@@ -1,6 +1,10 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.1] - 2016-07-29
+### Added
+- promisify
+
 ## [0.0.6] - 2016-07-15
 ### Added
 - new test

@@ -66,7 +66,42 @@ describe('ackP',function(){
     */
   })
 
-  it.only('then-array',function(done){
+  describe('promisify',function(){  
+    it('success',function(done){
+      var callback = function(a,b,callback){
+        setTimeout(function(){
+          callback(null,55)
+        }, 10)
+      }
+
+      callback = ackP.promisify(callback)
+
+      callback(1,2).then(function(res){
+        assert.equal(res, 55)
+      })
+      .then(done).catch(done)
+    })
+
+    it('failure',function(done){
+      var callback = function(a,b,callback){
+        setTimeout(function(){
+          callback(new Error('nope'))
+        }, 10)
+      }
+
+      callback = ackP.promisify(callback)
+
+      callback(1,2).then(function(res){
+        assert.equal(res, 55)
+      })
+      .catch('nope',function(err){
+        assert.equal(err.message, 'nope')
+      })
+      .then(done).catch(done)
+    })
+  })
+
+  it('then-array',function(done){
     p.resolve(11,22,33)
     .then(function(){
       return [ackP.resolve(44), ackP.resolve(55), ackP.resolve(66)]

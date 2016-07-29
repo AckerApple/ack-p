@@ -30,6 +30,22 @@ ackPromise.start = function(){
   return new ackP()
 }
 
+/** Expects a function, where that function expects that it's last argument will be a callback. Returns wrapper of defined function, that when called, returns a promise of calling defined function */
+ackPromise.promisify = function(method){
+  return function(){
+    var args = Array.prototype.slice.apply(arguments)
+    
+    return new ackPromise(function(res, rej){
+      args.push(function(err){
+        if(err)return rej(err)
+        var args = Array.prototype.slice.apply(arguments)
+        args.shift(args)//remove first
+        res.apply(this, args)
+      })
+      method.apply(this, args)
+    })
+  }
+}
 
 ackPromise.method = function(method){
   return function(){

@@ -78,6 +78,23 @@ ackP.resolve('a')
 })
 ```
 
+## Example: promisify
+Promisify expects a function, where that function expects that it's last argument will be a callback. Returns wrapper of defined function, that when called, returns a promise of calling defined function
+```
+function databaseCall(a,b,callback){
+  setTimeout(function(){
+    callback(null,55)
+  }, 10)
+}
+
+var databasePromise = ackP.promisify(databaseCall)
+
+databasePromise(1,2)
+.then(function(res){
+  assert.equal(res, 55)
+})
+```
+
 ## Differences From bluebird (as of 4/1/2016)
 This project is absolutely fond of [bluebird](http://bluebirdjs.com) but it does differ for pratical reasons:
 
