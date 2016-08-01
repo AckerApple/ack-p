@@ -3,6 +3,28 @@ var bbPromise = require('bluebird')
 var assert = require('assert')
 
 describe('BlueBird',function(){
+  it('in-porcess-all',function(){
+    bbPromise.resolve(22)
+    .then(function(r){
+      assert.equal(r, 22)
+      return [
+        bbPromise.resolve(33),
+        bbPromise.resolve(34),
+        bbPromise.resolve(35)
+      ]
+    })
+    .all()
+    .then(function(r){
+      assert.equal(r.length, 3)
+      return r
+    })
+    .spread(function(t0, t1, t2){
+      assert.equal(t0, 33)
+      assert.equal(t1, 34)
+      assert.equal(t2, 35)
+    })
+  })
+
   it('join',function(){
     var t0 = bbPromise.resolve(33)
     var t1 = bbPromise.resolve(34)

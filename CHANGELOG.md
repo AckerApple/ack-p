@@ -1,6 +1,11 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.2] - 2016-08-01
+### Added
+- ackP.all()
+- documentation
+
 ## [1.0.1] - 2016-07-29
 ### Added
 - promisify

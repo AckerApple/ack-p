@@ -1276,8 +1276,59 @@ console.log('56',22)
       })
     })
 
+    describe('All',function(){
+      it('all',function(done){
+        ackP.all([
+          ackP.resolve(1),
+          ackP.resolve(2),
+          ackP.resolve(3),
+          ackP.resolve(4)
+        ])
+        .then(function(r){
+          assert.equal(r[0], 1)
+          assert.equal(r[1], 2)
+          assert.equal(r[2], 3)
+          assert.equal(r[3], 4)
+        })
+        .then(done).catch(done)
+      })
+    })
+
     it('empty',function(done){
       p.all([]).then(done).catch(done)
+    })
+
+    it('promise-all-values',function(done){
+      p.then(function(){
+        return [1,2,3,4]
+      })
+      .all()
+      .then(function(r){
+        assert.equal(r[0], 1)
+        assert.equal(r[1], 2)
+        assert.equal(r[2], 3)
+        assert.equal(r[3], 4)
+      })
+      .then(done).catch(done)
+    })
+
+    it('promise-all-promises',function(done){
+      p.then(function(){
+        return [
+          ackP.resolve(1),
+          ackP.resolve(2),
+          ackP.resolve(3),
+          ackP.resolve(4)
+        ]
+      })
+      .all()
+      .then(function(r){
+        assert.equal(r[0], 1)
+        assert.equal(r[1], 2)
+        assert.equal(r[2], 3)
+        assert.equal(r[3], 4)
+      })
+      .then(done).catch(done)
     })
 
     it('simple-all',function(done){

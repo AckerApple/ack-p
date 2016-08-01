@@ -30,6 +30,11 @@ ackPromise.start = function(){
   return new ackP()
 }
 
+ackPromise.all = function(){
+  var p = ackPromise.start()
+  return p.all.apply(p, arguments)
+}
+
 /** Expects a function, where that function expects that it's last argument will be a callback. Returns wrapper of defined function, that when called, returns a promise of calling defined function */
 ackPromise.promisify = function(method){
   return function(){
@@ -861,7 +866,8 @@ ackP.prototype.join = function(/* promiseArrayOrPromise, promiseArrayOrPromise, 
   var resultArray = []
       ,count = 0
       ,argSlice = Array.prototype.slice.call(arguments)//mutatable arguments
-      ,isArg0Array = argSlice.length && argSlice[0] && argSlice[0].constructor==Array
+      ,isArg0Array = argSlice.length && argSlice[0] && argSlice[0].constructor==Array// && typeof argSlice[0]==='undefined'
+      ,isPromMode = !isArg0Array && typeof argSlice[0]==='function'
       ,promiseArray = isArg0Array ? arguments[0] : argSlice
 
   if(argSlice[argSlice.length-1] && argSlice[argSlice.length-1].constructor == Function){
@@ -882,9 +888,15 @@ ackP.prototype.join = function(/* promiseArrayOrPromise, promiseArrayOrPromise, 
   }
 
   var nextMethod = function(){//we will call $this instead of a next method
-    next = Array.prototype.slice.call(arguments).pop()//last argument is next method
+    var runTimeArgs = Array.prototype.slice.call(arguments)
+    next = runTimeArgs.pop()//last argument is next method
+
+    if(!isArg0Array && isPromMode){
+      promiseArray = runTimeArgs[0]
+    }
+
     if(!promiseArray.length){
-      return done()
+      done();return
     }
 
     var processResult = function(i, v){
