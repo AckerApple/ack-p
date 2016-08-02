@@ -1,7 +1,11 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
-## [1.0.2] - 2016-08-01
+## [1.0.3] - 2016-08-01
+### Enhanced
+- testing organization including bluebird test seperation
+- Promises are now console.log friendly
+- Deprecated reserved word .inspect in favor of .reflect
 ### Added
 - ackP.all()
 - documentation

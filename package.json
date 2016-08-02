@@ -1,11 +1,13 @@
 {
   "name": "ack-p",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
-    "test": "mocha ./tests/cases/ --recursive",
-    "test:watch": "mocha ./tests/cases/ --recursive --watch"
+    "test": "mocha ./tests/test-ack-p",
+    "test:bluebird": "mocha ./tests/bluebird",
+    "test:watch": "mocha ./tests/test-ack-p --watch",
+    "test:watch:bluebird": "mocha ./tests/bluebird --watch"
   },
   "repository": {
     "type": "git",

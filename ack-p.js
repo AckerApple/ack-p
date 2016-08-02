@@ -160,9 +160,8 @@ function ackP(){
   return this.processor()//fire
 }
 
-
 ackP.prototype.processor = function(){
-  this.values = Array.prototype.slice.call(arguments)
+  this.values = Array.prototype.slice.apply(arguments)
   if(!this.data || !this.data.task){
     return// this
   }
@@ -291,6 +290,32 @@ ackP.prototype.processor = function(){
   return// this
 }
 
+ackP.prototype['throw'] = function(err){
+  if(err && err.constructor==String){
+    var s = err
+    err = new Error(err)
+    err.name = s
+  }
+
+  this._rejected = err
+  this._rejectedCaught = false
+  if(nativePromiseThen)this.then = ackP.rejectedThen
+
+  var $this = this
+  var promiseCatcher = this.seekPromiseCatcher()
+
+  if(promiseCatcher){
+    return this.throwPromiseCatcher(err, promiseCatcher)
+  }
+
+  if(this.data && this.data.getNextPromise){
+    var np = this.data.getNextPromise()
+    return np['throw'].call(np, err)//cascade error reporting
+  }
+
+  //throw err
+  //return err
+}
 ackP.prototype.runSubPromise = function(result, thisTask){
   var $this = this,
       closingTask = function(){
@@ -660,16 +685,15 @@ ackP.prototype.past = function(method,scope){
 ackP.prototype.tap = ackP.prototype.past//respect the bluebird
 
 /** when this thenable is run, the first argument is this promise in it's current state */
-ackP.prototype.inspect = function(method,scope){
-  var inspect = function(){
+ackP.prototype.reflect = function(method,scope){
+  var reflect = function(){
     var args = Array.prototype.slice.call(arguments)
     args.unshift(this)
     method.apply(scope||this, args)
   }
 
-  return this.add({method:inspect, context:this, isPass:true, isAsync:false})
+  return this.add({method:reflect, context:this, isPass:true, isAsync:false})
 }
-ackP.prototype.tap = ackP.prototype.past//respect the bluebird
 
 //async-method
 ackP.prototype.next = function(method,scope){
@@ -817,33 +841,6 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
   if(promiseCatcher){
     return this.throwPromiseCatcher(e, promiseCatcher)
   }
-}
-
-ackP.prototype['throw'] = function(err){
-  if(err && err.constructor==String){
-    var s = err
-    err = new Error(err)
-    err.name = s
-  }
-
-  this._rejected = err
-  this._rejectedCaught = false
-  if(nativePromiseThen)this.then = ackP.rejectedThen
-
-  var $this = this
-  var promiseCatcher = this.seekPromiseCatcher()
-
-  if(promiseCatcher){
-    return this.throwPromiseCatcher(err, promiseCatcher)
-  }
-
-  if(this.data && this.data.getNextPromise){
-    var np = this.data.getNextPromise()
-    return np['throw'].call(np, err)//cascade error reporting
-  }
-
-  //throw err
-  //return err
 }
 
 ackP.prototype.all = function(){
