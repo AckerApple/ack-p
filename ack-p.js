@@ -790,7 +790,8 @@ ackP.prototype.seekPromiseCatcher = function(allowSelf){
 ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
   if(promiseCatcher.catchers.catch_type_array){
     for(var i=0; i < promiseCatcher.catchers.catch_type_array.length; ++i){
-      if(promiseCatcher.catchers.catch_type_array[i].type == e.constructor){
+      var isType = ackPromise.isErrorType(e, promiseCatcher.catchers.catch_type_array[i].type)
+      if(isType){
         this._rejectedCaught = true
         //var r = promiseCatcher.catchers.catch_type_array[i].method.call(this,e)
         var catcher = promiseCatcher.catchers.catch_type_array[i].method
@@ -812,14 +813,17 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
       }
     }
 
-    if(e && e.code && e.code.toLowerCase){
-      var eName = e.code.toLowerCase()
-      if(promiseCatcher.catchers['catch'+eName]){
-        this._rejectedCaught = true
-        //var r = promiseCatcher.catchers['catch'+eName].call(this,e)
-        var catcher = promiseCatcher.catchers['catch'+eName]
-        promiseCatcher.runCatch(e, catcher)
-        return this//r
+    if(e && e.code){
+      var isString = e.code.toLowerCase
+      if(isString || Number(e.code)){
+        var eName = isString ? e.code.toLowerCase() : e.code
+        if(promiseCatcher.catchers['catch'+eName]){
+          this._rejectedCaught = true
+          //var r = promiseCatcher.catchers['catch'+eName].call(this,e)
+          var catcher = promiseCatcher.catchers['catch'+eName]
+          promiseCatcher.runCatch(e, catcher)
+          return this//r
+        }
       }
     }
 
