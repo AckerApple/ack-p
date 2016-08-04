@@ -9,6 +9,18 @@ module.exports = function(){
     p = ackP.resolve()
   })
 
+  it('code',function(done){
+    p.then(function(){
+      var e = new Error('x')
+      e.code = 404
+      throw e
+    })
+    .catch(404,e=>{
+      assert.equal(e.code, 404)
+    })
+    .then(done).catch(done)
+  })
+
   it('basic',function(done){
     p.set(1,2,3)
     .then(function(a,b,c){

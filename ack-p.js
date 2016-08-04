@@ -61,7 +61,7 @@ ackPromise.method = function(method){
 
 ackPromise.getErrorType = function(error){
   var isNamed = error.name && error.name.toLowerCase!=null
-  var isCode = error.code && error.code.toLowerCase!=null
+  var isCode = error.code && (error.code.toLowerCase!=null || Number(error.code))
 
   if(isCode && error.name=='Error'){
     return error.code
@@ -79,7 +79,13 @@ ackPromise.isErrorType = function(error, type){
     return true
 
   var eName = ackPromise.getErrorType(error)
-  if(eName && eName.toLowerCase()==type.toLowerCase()){
+  if(
+      eName
+  &&  (
+          eName==type
+      ||  (eName.toLowerCase && eName.toLowerCase()==type.toLowerCase())
+      )
+  ){
     return true
   }
 
