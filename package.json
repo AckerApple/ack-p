@@ -1,6 +1,6 @@
 {
   "name": "ack-p",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
@@ -19,5 +19,8 @@
     "bluebird": "^3.4.1",
     "mocha": "^2.4.5",
     "webpack": "^1.13.1"
+  },
+  "jspm": {
+    "main": "ack-p"
   }
 }
