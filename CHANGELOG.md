@@ -1,6 +1,10 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.7] - 2016-11-23
+### Fixed
+- Async error catching with 
+
 ## [1.0.4] - 2016-08-03
 ### Fixed
 - catch by number code. Added 404 code test

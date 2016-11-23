@@ -307,7 +307,7 @@ ackP.prototype['throw'] = function(err){
   this._rejectedCaught = false
   if(nativePromiseThen)this.then = ackP.rejectedThen
 
-  var $this = this
+  //var $this = this
   var promiseCatcher = this.seekPromiseCatcher()
 
   if(promiseCatcher){
@@ -316,6 +316,12 @@ ackP.prototype['throw'] = function(err){
 
   if(this.data && this.data.getNextPromise){
     var np = this.data.getNextPromise()
+    var isNativeNext = np.data.task.method.toString()==nativePromiseThenString
+    
+    if(isNativeNext){
+      return np.data.task.method( Promise.reject(err) )
+    }
+    
     return np['throw'].call(np, err)//cascade error reporting
   }
 
@@ -715,7 +721,7 @@ ackP.prototype.method = ackP.prototype.then//respect the blue bird
 /** this function will be made into ackP.prototype.then WHEN a promise error occurs. It makes catching errors flow properly between ecma6 promises and ackP */
 ackP.rejectedThen = function(method,scope){
   /* !extremely important! - This connects ackP promises with native promises */
-  if(this._rejected && method.toString()==nativePromiseThen.toString() ){
+  if(this._rejected && method.toString()==nativePromiseThenString ){
     throw this._rejected//This will reject to the native promise. I have already been rejected and a native promise is trying to chain onto me
   }
 
@@ -1119,7 +1125,7 @@ function isNative(value) {
     : (value && type == 'object' && reHostCtor.test(toString.call(value))) || false;
 }
 
-var nativePromiseThen;
+var nativePromiseThen, nativePromiseThenString;
 var isNativePromised = typeof(Promise)!='undefined' && Promise && Promise.resolve
 if(isNativePromised){
   Promise.resolve().then(function(){
@@ -1127,6 +1133,7 @@ if(isNativePromised){
 
     testerP.then = function(nativeThen){
       nativePromiseThen = nativeThen
+      nativePromiseThenString = nativeThen.toString()
     }
     return testerP
   })

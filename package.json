@@ -1,6 +1,6 @@
 {
   "name": "ack-p",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Promises for Javascript. Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.",
   "main": "ack-p.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "url": "https://github.com/AckerApple/ack-p.git"
   },
   "author": "Acker Apple",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "bluebird": "^3.4.1",
     "mocha": "^2.4.5",
