@@ -306,12 +306,15 @@ ackP.prototype['throw'] = function(err){
   this._rejected = err
   this._rejectedCaught = false
   if(nativePromiseThen)this.then = ackP.rejectedThen
-
   //var $this = this
   var promiseCatcher = this.seekPromiseCatcher()
 
   if(promiseCatcher){
-    return this.throwPromiseCatcher(err, promiseCatcher)
+    try{
+      return this.throwPromiseCatcher(err, promiseCatcher)
+    }catch(e){
+      console.log('eeeeeee',e)
+    }//any error thrown above, should fall throw
   }
 
   if(this.data && this.data.getNextPromise){
@@ -321,7 +324,7 @@ ackP.prototype['throw'] = function(err){
     if(isNativeNext){
       return np.data.task.method( Promise.reject(err) )
     }
-    
+
     return np['throw'].call(np, err)//cascade error reporting
   }
 
@@ -349,9 +352,11 @@ ackP.prototype.runNextPromise = function(){
   if(this._rejected){
     return
   }
+
   if(this.values && this.values.length){
     return this.runNextPromiseWithValueArray(this.values)
   }
+
   return this.runNextPromiseWithValueArray()
   //this.values = null//intended to clear memory
 }
@@ -386,7 +391,15 @@ ackP.prototype.runNextPromiseWithValueArray = function(valueArray){
 }
 
 ackP.prototype.runCatch = function(err, catcher){
-  var caught = catcher.call(this.nextContext || this, err)
+  try{
+    var caught = catcher.call(this.nextContext || this, err)
+  }catch(e){
+    //????
+    this._rejectedCaught = false
+    this._rejected = e
+    caught = e
+  }
+
   if(isPromiseLike(caught)){
     var $this = this
     return caught.then(function(){

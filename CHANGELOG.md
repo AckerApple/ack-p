@@ -1,6 +1,10 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.8] - 2016-12-19
+### Fixed
+- throw or error within a catch correctly goes to another catch
+
 ## [1.0.7] - 2016-11-23
 ### Fixed
 - Async error catching with 

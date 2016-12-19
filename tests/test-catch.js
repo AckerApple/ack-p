@@ -155,4 +155,21 @@ console.log('56',22)
     })
     .then(done).catch(done)
   })
+
+  it('throw-in-catch',done=>{
+    p.then(()=>{
+      throw 44
+    })
+    .catch(e=>{
+      assert.equal(e, 44)
+      throw 55
+    })
+    .then(()=>{
+      throw 'we should never get here'
+    })
+    .catch(e=>{
+      assert.equal(e, 55)
+    })
+    .then(done).catch(done)
+  })
 }
