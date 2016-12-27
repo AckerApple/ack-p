@@ -20,11 +20,6 @@ module.exports = function(){
     getAlbums = ackP.start().then(function(){
       return data.albums
     })
-    getError = ackP.start().then(function(){
-      var e = new Error('planned join error')
-      e.name = 'getError'
-      throw(e)
-    })
 
     controller = function(pictures, albums){
       assert.equal(data.pictures.length,pictures.length, 'expected '+data.pictures.length+' pictures')
@@ -71,6 +66,12 @@ module.exports = function(){
   })
 
   it('single-join-error',function(done){
+    const getError = ackP.start().then(function(){
+      var e = new Error('planned join error')
+      e.name = 'getError'
+      throw(e)
+    })
+
     var pp = p.join(getError)
     .then(function(pictures){
       throw new Error('i should have never been called');

@@ -87,8 +87,15 @@ module.exports = function(){
 
   it('concurrency',function(done){
     p.map(array,function(item,index,len){
-      if(item!=array[index])throw new Error('array item mismatch');
-      if(len!=array.length)throw new Error('array length mismatch');
+      if(item!=array[index]){
+        console.log(11)
+        throw new Error('array item mismatch');
+      }
+      
+      if(len!=array.length){
+        console.log(22)
+        throw new Error('array length mismatch');
+      }
 
       return ackP.start().next(function(next){
         setTimeout(function(){
@@ -97,8 +104,15 @@ module.exports = function(){
       })
     },{concurrency:5})
     .then(function(newarray){
-      if(newarray.length != array.length)throw new Error('0.1 newarray length mismatch. Expected '+array.length+'. Got '+newarray.length)
-      if(newarray[0] != array[0]+1)throw new Error('newarray 0 incorrect');
+      if(newarray.length != array.length){
+        console.log(33)
+        throw new Error('0.1 newarray length mismatch. Expected '+array.length+'. Got '+newarray.length)
+      }
+      
+      if(newarray[0] != array[0]+1){
+        console.log(44)
+        throw new Error('newarray 0 incorrect');
+      }
     })
     .then(done).catch(done)
   })

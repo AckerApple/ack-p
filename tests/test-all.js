@@ -20,11 +20,35 @@ module.exports = function(){
     getAlbums = ackP.resolve().then(function(){
       return data.albums
     })
-    getError = ackP.start().then(function(){
-      var e = new Error('planned join error')
-      e.name = 'getError'
-      throw(e)
+  })
+
+  it('#finally',done=>{
+    var counter = 0
+    p=p.then(()=>{
+      return 77
     })
+    .finally(()=>{
+      ++counter
+      return 99
+    })
+    .then(r=>{
+      assert.equal(r, 77)
+      throw 66
+    })
+    .finally(()=>{
+      ++counter
+    })
+    .catch(e=>{
+      assert.equal(e, 66)
+      return 988
+    })
+    .finally(()=>{
+      ++counter
+    })
+    .then(r=>{
+      assert.equal(counter, 3)
+    })
+    .then(done).catch(done)
   })
 
   describe('All',function(){
@@ -111,6 +135,12 @@ module.exports = function(){
   })
 
   it('all-error',function(done){
+    const getError = ackP.start().then(function(){
+      var e = new Error('planned join error')
+      e.name = 'getError'
+      throw(e)
+    })
+
     p.all(getError)
     .then(function(pictures){
       throw new Error('i should have never been called');

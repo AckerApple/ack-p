@@ -3,6 +3,36 @@ var bbPromise = require('bluebird')
 var assert = require('assert')
 
 describe('BlueBird',function(){
+  it('#finally',done=>{
+    var counter = 0
+    bbPromise.resolve().then(()=>{
+      return 77
+    })
+    .finally(()=>{
+      ++counter
+      return 99
+    })
+    .then(r=>{
+      assert.equal(r, 77)
+      throw 66
+    })
+    .finally(()=>{
+      ++counter
+      return 282
+    })
+    .catch(e=>{
+      assert.equal(e, 66)
+      return 988
+    })
+    .finally(()=>{
+      ++counter
+    })
+    .then(r=>{
+      assert.equal(counter, 3)
+    })
+    .then(done).catch(done)
+  })
+
   it('in-porcess-all',function(){
     bbPromise.resolve(22)
     .then(function(r){

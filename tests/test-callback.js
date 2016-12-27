@@ -65,8 +65,8 @@ module.exports = function(){
 
   it('then-promises-fail',function(done){
     p
-    .set(22)
-    .callback(function(callback){
+    .set(23,24)
+    .callback(function(a,b,callback){
       callback('88')
     })
     .then(function(){
@@ -78,14 +78,13 @@ module.exports = function(){
       .then(function(){
         return 33
       })
-      .callback(function(callback){
-        callback('88')
+      .callback(function(x,callback){
+        assert.equal(x, 33)
+        callback('88')//causes error
       })
     })
     .then(function(r){
       throw 'i should not be called';
-      assert.equal(r,33)
-      assert.equal(isCyclic(p),false)
     })
     .catch('88',function(){
       done()

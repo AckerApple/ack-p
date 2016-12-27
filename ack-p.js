@@ -176,6 +176,8 @@ ackP.prototype.processor = function(){
     args:Array.prototype.slice.call(arguments)//args that can be manipulated
   }
 
+  var first = $scope.args
+
   var thisTask = this.data.task
   var context = thisTask.context || this.data.context || this.nextContext || this//never use outside arguments.context as context can be changed by bind()
   this.data.waiting=1//indicate in-process
@@ -187,7 +189,8 @@ ackP.prototype.processor = function(){
 
       var oneTimeCall = false
       var oneTimeMethod = function(){
-        var args = Array.prototype.slice.call(arguments)
+        var innerArgs = Array.prototype.slice.call(arguments)
+
         var then = function(){
           if($this.inpass){
             --$this.inpass.count
@@ -201,24 +204,25 @@ ackP.prototype.processor = function(){
         }
 
         if(arguments.length && isPromiseLike(arguments[0], $this)){//result is promise
-          $this.runSubPromise(arguments[0], thisTask, args).then(then)
+          $this.runSubPromise(arguments[0], thisTask, innerArgs).then(then)
         }else{
+          //$this.values = innerArgs
           if(thisTask && !thisTask.isPass){
-            $this.values = args
+            $this.values = innerArgs
           }
           then()
         }
-
       }
 
       oneTimeMethod['throw'] = function(){
         return $this['throw'].apply($this, arguments)
       }
 
-      if(nPos>=0)
-        $scope.args[nPos] = oneTimeMethod//last argument will be next call
-      else
+      if(nPos>=0){
+        $scope.args[nPos] = oneTimeMethod//last assigned argument position will be next call
+      }else{
         $scope.args.push(oneTimeMethod)//last argument will be next call
+      }
     }
   /* end: async callback method */
 
@@ -304,16 +308,20 @@ ackP.prototype['throw'] = function(err){
   }
 
   this._rejected = err
-  this._rejectedCaught = false
+  var _rejectedCaught = false
+  this._rejectedCaught = function(v){
+    return _rejectedCaught || (_rejectedCaught=v)
+  }
   if(nativePromiseThen)this.then = ackP.rejectedThen
   //var $this = this
   var promiseCatcher = this.seekPromiseCatcher()
+  this.tryForFinally()
 
   if(promiseCatcher){
     try{
       return this.throwPromiseCatcher(err, promiseCatcher)
     }catch(e){
-      console.log('eeeeeee',e)
+      console.log('ack-p throw promise catcher error',e)
     }//any error thrown above, should fall throw
   }
 
@@ -328,9 +336,43 @@ ackP.prototype['throw'] = function(err){
     return np['throw'].call(np, err)//cascade error reporting
   }
 
+  setTimeout(function(){
+    if(_rejectedCaught)return
+
+    this.tryForFinally()
+
+    var promiseCatcher = this.seekPromiseCatcher()
+    if(promiseCatcher){
+      return this.throwPromiseCatcher(err, promiseCatcher)
+    }
+    
+    if(console.log){
+      console.log('\x1b[31mUncaught Promise Error ' +err.message+'\x1b[0m')
+      throw err
+    }
+  }.bind(this), 1)
   //throw err
   //return err
 }
+
+ackP.prototype.tryForFinally = function(){
+  var final = this.seekFinally()
+
+  if(final){
+    final.data.task.method()
+  }
+}
+
+ackP.prototype.seekFinally = function(allowSelf){
+  if(this.data && this.data.task && this.data.task['finally'] && allowSelf==null){
+    return this
+  }
+
+  if(this.data && this.data.getNextPromise){
+    return this.data.getNextPromise().seekFinally()
+  }
+}
+
 ackP.prototype.runSubPromise = function(result, thisTask){
   var $this = this,
       closingTask = function(){
@@ -370,12 +412,9 @@ ackP.prototype.runNextPromiseWithValueArray = function(valueArray){
     this.data.waiting = 0;return// this
   }
 
-  if(
-      this.inpass && this.inpass.count
-  &&  np.data && np.data.task && !np.data.task.isPass
-  ){
-    return// np
-  }
+  var isByPass = this.inpass && this.inpass.count && np.data && np.data.task && !np.data.task.isPass
+  if(isByPass)return
+
   //np.paramData()
   //var shares
   np.data.waiting = -1
@@ -385,17 +424,18 @@ ackP.prototype.runNextPromiseWithValueArray = function(valueArray){
   this.clearMem()
   this.nextContext = null//clear mem
 
-  var r = np.processor.apply(np, valueArray)
-  return r
-
+  np.values = valueArray
+  return np.processor.apply(np, valueArray)
 }
 
 ackP.prototype.runCatch = function(err, catcher){
   try{
     var caught = catcher.call(this.nextContext || this, err)
   }catch(e){
-    //????
-    this._rejectedCaught = false
+    var _rejectedCaught = false
+    this._rejectedCaught = function(v){
+      return _rejectedCaught || (_rejectedCaught=v)
+    }
     this._rejected = e
     caught = e
   }
@@ -439,8 +479,8 @@ ackP.prototype['catch'] = function(typeOrMethod, method){
       case 'string':
         var type = typeOrMethod.toLowerCase()
         this.catchers['catch'+type] = method;
-        if(this._rejected && !this._rejectedCaught && ackPromise.isErrorType(this._rejected, type)){//error already happend
-          this._rejectedCaught = true
+        if(this._rejected && !this._rejectedCaught() && ackPromise.isErrorType(this._rejected, type)){//error already happend
+          this._rejectedCaught(true)
           this.runCatch(this._rejected, method)//method.call(this, this._rejected)
         }
         break;
@@ -448,8 +488,8 @@ ackP.prototype['catch'] = function(typeOrMethod, method){
       default:{
         this.catchers.catch_type_array = this.catchers.catch_type_array || []
         this.catchers.catch_type_array.push({method:method, type:typeOrMethod})
-        if(this._rejected && !this._rejectedCaught && ackPromise.isErrorType(this._rejected, typeOrMethod)){
-          this._rejectedCaught = true
+        if(this._rejected && !this._rejectedCaught() && ackPromise.isErrorType(this._rejected, typeOrMethod)){
+          this._rejectedCaught(true)
           this.runCatch(this._rejected, method)//method.call(this, this._rejected)
         }
       }
@@ -457,13 +497,14 @@ ackP.prototype['catch'] = function(typeOrMethod, method){
   }else{
     method = typeOrMethod
     this.catchers.catchAll = typeOrMethod
-    if(this._rejected && !this._rejectedCaught){
-      this._rejectedCaught = true
+    if(this._rejected && !this._rejectedCaught()){
+      this._rejectedCaught(true)
       this.runCatch(this._rejected, method)//method.call(this, this._rejected)
     }
   }
 
-  if(this._rejected && !this._rejectedCaught){
+  if(this._rejected && !this._rejectedCaught()){
+    newProm._rejectedCaught = this._rejectedCaught
     newProm._rejected = this._rejected
     if(nativePromiseThen)this.then = ackP.rejectedThen
   }
@@ -531,6 +572,7 @@ ackP.prototype.setNextPromise = function(np){
     }
     np.nextContext = this.nextContext
     if(this._rejected){
+      np._rejectedCaught = this._rejectedCaught
       np._rejected = this._rejected
       if(nativePromiseThen)np.then = ackP.rejectedThen
     }
@@ -577,6 +619,10 @@ ackP.prototype.add = function(options){
   this.data.task = options//first added task
 
   if(this.data.waiting===0){//?already done process, put back into process
+    this.processor.apply(this, this.values)
+  }
+
+  if(this._rejected && options.finally){
     this.processor.apply(this, this.values)
   }
 
@@ -686,7 +732,8 @@ ackP.prototype.get = function(){
 
 ackP.prototype.set = function(){
   var args = Array.prototype.slice.call(arguments)
-  return this.next(function(next){
+  return this.next(function(){
+    var next = Array.prototype.slice.call(arguments).pop()
     next.apply(next, args)
   })
 }
@@ -703,11 +750,16 @@ ackP.prototype.delay = function(t){
   })
 }
 
+ackP.prototype['finally'] = function(method,scope){
+  return this.add({method:method, context:scope, isPass:true, isAsync:false, finally:true})
+}
+
 //sync-method whose input is passed exactly as output to the next method in chain
-ackP.prototype.past = function(method,scope){
+ackP.prototype.ignore = function(method,scope){
   return this.add({method:method, context:scope, isPass:true, isAsync:false})
 }
-ackP.prototype.tap = ackP.prototype.past//respect the bluebird
+ackP.prototype.past = ackP.prototype.ignore//respect the bluebird
+ackP.prototype.tap = ackP.prototype.ignore//respect the bluebird
 
 /** when this thenable is run, the first argument is this promise in it's current state */
 ackP.prototype.reflect = function(method,scope){
@@ -735,6 +787,7 @@ ackP.prototype.method = ackP.prototype.then//respect the blue bird
 ackP.rejectedThen = function(method,scope){
   /* !extremely important! - This connects ackP promises with native promises */
   if(this._rejected && method.toString()==nativePromiseThenString ){
+    this._rejectedCaught(true)//its the next libraries problem
     throw this._rejected//This will reject to the native promise. I have already been rejected and a native promise is trying to chain onto me
   }
 
@@ -743,7 +796,11 @@ ackP.rejectedThen = function(method,scope){
 
 ackP.prototype.spread = function(method,scope){
   if(!method){
-    return this.add({method:function(a,next){next.apply(next,a)}, context:this, isAsync:true})
+    return this.add({method:function(){
+      var args = Array.prototype.slice.call(arguments)
+      var next = args.pop()
+      next.apply(next,args[0])
+    }, context:this, isAsync:true})
   }else{
     return this.add({method:function(a){
       return method.apply(this, a)}, context:scope, isAsync:false
@@ -754,7 +811,8 @@ ackP.prototype.spread = function(method,scope){
 ackP.prototype.spreadCallback = function(method,scope){
   return this.callback(function(){
     var args = Array.prototype.slice.call(arguments)
-    var callback = args[args.length-1]
+    var callback = args.pop()
+    args = args[0]
     if(args.length){
       switch(args[0].constructor){
         case String: case Boolean: case Object:
@@ -778,13 +836,18 @@ ackP.prototype.callback = function(method,scope){
   this.assertMethod(method)//since an override method is provided, lets check the one we are recieving now instead of when we need it
 
   var fireMethod = function(){
+    
     var bind = scope||this
     var prom = ackPromise.start()
-    prom.set.apply(prom,arguments).spread()
+    var args = [Array.prototype.slice.call(arguments)]
+
+    prom.set.apply(prom,args).spread()
+
     var myMethod = ackPromise.callback4callback(method, prom, bind)
     return prom
     .next(function(){
-      return myMethod.apply(bind, arguments)
+      var args = Array.prototype.slice.call(arguments)
+      return myMethod.apply(bind, args)
     })
     return prom
   }
@@ -806,12 +869,16 @@ ackP.prototype.seekPromiseCatcher = function(allowSelf){
   }
 }
 
+ackP.prototype._rejectedCaught = function(){
+  return false
+}
+
 ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
   if(promiseCatcher.catchers.catch_type_array){
     for(var i=0; i < promiseCatcher.catchers.catch_type_array.length; ++i){
       var isType = ackPromise.isErrorType(e, promiseCatcher.catchers.catch_type_array[i].type)
       if(isType){
-        this._rejectedCaught = true
+        this._rejectedCaught(true)
         //var r = promiseCatcher.catchers.catch_type_array[i].method.call(this,e)
         var catcher = promiseCatcher.catchers.catch_type_array[i].method
         promiseCatcher.runCatch(e, catcher)
@@ -824,7 +891,7 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
     if(e && e.name && e.name.toLowerCase){
       var eName = e.name.toLowerCase()
       if(promiseCatcher.catchers['catch'+eName]){
-        this._rejectedCaught = true
+        this._rejectedCaught(true)
         //var r = promiseCatcher.catchers['catch'+eName].call(this,e)
         var catcher = promiseCatcher.catchers['catch'+eName]
         promiseCatcher.runCatch(e, catcher)
@@ -837,7 +904,7 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
       if(isString || Number(e.code)){
         var eName = isString ? e.code.toLowerCase() : e.code
         if(promiseCatcher.catchers['catch'+eName]){
-          this._rejectedCaught = true
+          this._rejectedCaught(true)
           //var r = promiseCatcher.catchers['catch'+eName].call(this,e)
           var catcher = promiseCatcher.catchers['catch'+eName]
           promiseCatcher.runCatch(e, catcher)
@@ -849,7 +916,7 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
     if(e && e.message && e.message.toLowerCase){
       var eName = e.message.toLowerCase()
       if(promiseCatcher.catchers['catch'+eName]){
-        this._rejectedCaught = true
+        this._rejectedCaught(true)
         //var r = promiseCatcher.catchers['catch'+eName].call(this,e)
         var catcher = promiseCatcher.catchers['catch'+eName]
         promiseCatcher.runCatch(e, catcher)
@@ -859,7 +926,7 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
   /* end: error string type catchers */
 
   if(promiseCatcher.catchers.catchAll){
-    this._rejectedCaught = true
+    this._rejectedCaught(true)
     //var r = promiseCatcher.catchers.catchAll.call(this,e)
     var catcher = promiseCatcher.catchers.catchAll
     promiseCatcher.runCatch(e, catcher)
@@ -867,6 +934,7 @@ ackP.prototype.throwPromiseCatcher = function(e, promiseCatcher){
   }
 
   var promiseCatcher = promiseCatcher.seekPromiseCatcher(false)//the current promise catcher we have didn't work out
+  this.tryForFinally()
   if(promiseCatcher){
     return this.throwPromiseCatcher(e, promiseCatcher)
   }
@@ -1014,17 +1082,20 @@ ackP.prototype.map = function(){
             })
           }
           ++wait;
-          return nx(nx,i+1,$this).then(function(){
-            --wait;
-            if(wait==0){
-              nx(nx,i+1,$this)
-            }
-          })
+          var nxPromise = nx(nx,i+1,$this)
+          if(nxPromise){          
+            return nxPromise.then(function(){
+              --wait;
+              if(wait==0){
+                nx(nx,i+1,$this)
+              }
+            })
+          }
         }
 
-          return prom.then(function(){
-            nx(nx, i+1, $this)
-          })
+        return prom.then(function(){
+          nx(nx, i+1, $this)
+        })
       }
 
       next(next, 0, this)
@@ -1055,7 +1126,7 @@ ackP.prototype.map = function(){
   }
 
   return this.callback(function(array,callback){
-    loopArray.call(this, array, callback)
+    loopArray.call(this, array[0], callback)
   })
 }
 

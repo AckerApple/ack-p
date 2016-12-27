@@ -80,7 +80,9 @@ module.exports = function(){
   })
 
   it('bind-promise',function(done){
-    var promise = ackP.start().set({self:44})
+    var promise = ackP.start()
+    .set({self:44})
+
     p.set(1,2,3).bind(promise)
     .then(function(a,b,c){
       assert.equal(a, 1)
