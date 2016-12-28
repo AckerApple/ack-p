@@ -18,7 +18,6 @@ describe('BlueBird',function(){
     })
     .finally(()=>{
       ++counter
-      return 282
     })
     .catch(e=>{
       assert.equal(e, 66)
@@ -28,7 +27,21 @@ describe('BlueBird',function(){
       ++counter
     })
     .then(r=>{
+      assert.equal(r, 988)
       assert.equal(counter, 3)
+    })
+    .then(()=>{
+      return bbPromise.promisify(function(callback){
+        setTimeout(()=>callback(99), 10)
+      })()
+    })
+    .finally(()=>{
+      ++counter
+    })
+    .catch(r=>{
+      assert.equal(r.message, 99)
+      assert.equal(counter, 4)
+      return 
     })
     .then(done).catch(done)
   })

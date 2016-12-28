@@ -1,6 +1,10 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.10] - 2016-12-19
+### Fixed
+- callback argument feed
+
 ## [1.0.9] - 2016-12-19
 ### Added
 - .finally()

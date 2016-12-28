@@ -73,7 +73,10 @@ describe('ackP',function(){
 
   it('then-array',function(done){
     p.resolve(11,22,33)
-    .then(function(){
+    .then(function(a,b,c){
+      assert.equal(a, 11)
+      assert.equal(b, 22)
+      assert.equal(c, 33)
       return [ackP.resolve(44), ackP.resolve(55), ackP.resolve(66)]
     })
     .map(function(x){return x})//array-of-promises to array-of-values

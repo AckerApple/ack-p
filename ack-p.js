@@ -348,8 +348,9 @@ ackP.prototype['throw'] = function(err){
     
     if(console.log){
       console.log('\x1b[31mUncaught Promise Error ' +err.message+'\x1b[0m')
-      throw err
     }
+    
+    throw err
   }.bind(this), 1)
   //throw err
   //return err
@@ -622,10 +623,6 @@ ackP.prototype.add = function(options){
     this.processor.apply(this, this.values)
   }
 
-  if(this._rejected && options.finally){
-    this.processor.apply(this, this.values)
-  }
-
   return this
 }
 
@@ -751,7 +748,13 @@ ackP.prototype.delay = function(t){
 }
 
 ackP.prototype['finally'] = function(method,scope){
-  return this.add({method:method, context:scope, isPass:true, isAsync:false, finally:true})
+  var rtn = this.add({method:method, context:scope, isPass:true, isAsync:false, finally:true})
+
+  if(this._rejected){
+    method()
+  }
+
+  return rtn
 }
 
 //sync-method whose input is passed exactly as output to the next method in chain
@@ -812,7 +815,7 @@ ackP.prototype.spreadCallback = function(method,scope){
   return this.callback(function(){
     var args = Array.prototype.slice.call(arguments)
     var callback = args.pop()
-    args = args[0]
+    //args = args[0]
     if(args.length){
       switch(args[0].constructor){
         case String: case Boolean: case Object:
@@ -839,14 +842,15 @@ ackP.prototype.callback = function(method,scope){
     
     var bind = scope||this
     var prom = ackPromise.start()
-    var args = [Array.prototype.slice.call(arguments)]
+    var args = Array.prototype.slice.call(arguments)
 
-    prom.set.apply(prom,args).spread()
+    //prom = prom.set.apply(prom,args)//.spread()
 
     var myMethod = ackPromise.callback4callback(method, prom, bind)
     return prom
     .next(function(){
-      var args = Array.prototype.slice.call(arguments)
+      var next = Array.prototype.slice.call(arguments).pop()
+      args.push(next)
       return myMethod.apply(bind, args)
     })
     return prom
@@ -1126,7 +1130,7 @@ ackP.prototype.map = function(){
   }
 
   return this.callback(function(array,callback){
-    loopArray.call(this, array[0], callback)
+    loopArray.call(this, array, callback)
   })
 }
 

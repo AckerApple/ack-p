@@ -7,6 +7,7 @@ Back in the Internet Explorer days, this code library was originally just one pe
 - [Create Your Own NEW Promise](#create-your-own-new-promise)
 - [resolve](#resolve)
 - [spread](#spread)
+- [finally](#finally)
 - [callback](#callback)
 - [if](#if)
 - [all](#all)
@@ -60,6 +61,21 @@ ackP.resolve(['a','b','c'])
   assert(b,'b')
   assert(c,'c')
 })
+```
+
+## finally
+An always run process regardless of error. Receives no input, output is ignored.
+
+```
+const loading = 1
+
+ackP.then(()=>{
+  throw 'some error'
+})
+.finally(()=>{
+  --loading
+})
+.catch(e=>console.error(e))
 ```
 
 

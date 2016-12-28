@@ -15,7 +15,8 @@ module.exports = function(){
       if(item!=array[index])throw new Error('array item mismatch');
       if(len!=array.length)throw new Error('array length mismatch');
       return item + 1
-    }).then(function(newarray){
+    })
+    .then(function(newarray){
       if(newarray.length != array.length)throw new Error('0.0 newarray length mismatch. Expected '+array.length+'. Got '+newarray.length)
       if(newarray[0] != array[0]+1)throw new Error('newarray 0 incorrect');
     })

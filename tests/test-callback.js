@@ -67,6 +67,8 @@ module.exports = function(){
     p
     .set(23,24)
     .callback(function(a,b,callback){
+      assert.equal(a, 23)
+      assert.equal(b, 24)
       callback('88')
     })
     .then(function(){

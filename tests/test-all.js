@@ -24,7 +24,7 @@ module.exports = function(){
 
   it('#finally',done=>{
     var counter = 0
-    p=p.then(()=>{
+    p.then(()=>{
       return 77
     })
     .finally(()=>{
@@ -46,7 +46,18 @@ module.exports = function(){
       ++counter
     })
     .then(r=>{
+      assert.equal(r, 988)
       assert.equal(counter, 3)
+    })
+    .callback(callback=>{
+      setTimeout(()=>callback(99), 10)
+    })
+    .finally(()=>{
+      ++counter
+    })
+    .catch(r=>{
+      assert.equal(r, 99)
+      assert.equal(counter, 4)
     })
     .then(done).catch(done)
   })
