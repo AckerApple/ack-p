@@ -347,10 +347,12 @@ ackP.prototype['throw'] = function(err){
     }
     
     if(console.log){
-      console.log('\x1b[31mUncaught Promise Error ' +err.message+'\x1b[0m')
+      var msg = err.message || ''
+      console.log('\x1b[31mUncaught Promise Error '+msg+'\x1b[0m')
+      console.log(err)
+    }else{
+      throw err
     }
-    
-    throw err
   }.bind(this), 1)
   //throw err
   //return err
