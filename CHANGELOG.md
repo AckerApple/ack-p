@@ -1,6 +1,10 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
+## [1.0.12] - 2016-03-02
+### Fixed
+- .each was not maintaining this context
+
 ## [1.0.11] - 2016-12-19
 ### Enhanced
 - uncaught promise will console.log error

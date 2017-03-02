@@ -1140,8 +1140,11 @@ ackP.prototype.map = function(){
 ackP.prototype.each = function(func){
   return this.then(function(a){
     var prom = ackPromise.start()
+    
     for(var i=0; i < a.length; ++i){
-      prom = prom.set(a[i],i,a).then(func)
+      prom = prom.set(a[i],i,a).then(function(){
+        return func.apply(this,arguments)
+      }.bind(this))
     }
 
     return prom.set.apply(prom, arguments)
