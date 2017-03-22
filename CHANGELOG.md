@@ -1,7 +1,11 @@
 # ack-p - Change Log
 All notable changes to this project will be documented here.
 
-## [1.0.12] - 2016-03-02
+## [1.0.13] - 2017-03-22
+### Enhanced
+- colorized README documentation
+
+## [1.0.12] - 2017-03-02
 ### Fixed
 - .each was not maintaining this context
 

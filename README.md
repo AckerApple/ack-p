@@ -18,7 +18,7 @@ Back in the Internet Explorer days, this code library was originally just one pe
 
 > Note: Constructing your own new promise, is only needed when an existing process-flow is async but is not a thenable
 
-```
+```javascript
 var ackP = require('ackP')//if this is nodeJs, if browser, just include ack-p
 
 new ackP(function(resolve,reject){
@@ -38,7 +38,7 @@ Resolve Position-Values into Argument-Positions
 
 > Note: Other promise libraries that "chain" into ackP, will only receive the first argument
 
-```
+```javascript
 ackP.resolve('a','b','c')
 .then(function(a,b,c){
   assert(a,'a')
@@ -53,7 +53,7 @@ Spread Arrays into Argument-Positions
 
 > Note: Other promise libraries that "chain" into ackP, will only receive the first argument
 
-```
+```javascript
 ackP.resolve(['a','b','c'])
 .spread()
 .then(function(a,b,c){
@@ -66,7 +66,7 @@ ackP.resolve(['a','b','c'])
 ## finally
 An always run process regardless of error. Receives no input, output is ignored.
 
-```
+```javascript
 const loading = 1
 
 ackP.then(()=>{
@@ -81,7 +81,7 @@ ackP.then(()=>{
 
 ## callback
 Spread callback-argument-positions into argument-positions
-```
+```javascript
 ackP.resolve('a')
 .callback(function(a, callback){
   assert.equal(a, 'a')
@@ -100,7 +100,7 @@ Conditional thenables
 
 > Note: Older browsers may choke on using reserved word (alternatives available)
 
-```
+```javascript
 ackP.resolve(22)
 .if(33,function(){
   throw 'I wish I was 22'
@@ -123,7 +123,7 @@ ackP.resolve(22)
 ## all
 
 - Kick start a Promise with an array of running promises
-```
+```javascript
 ackP.all([
   ackP.resolve(1),
   ackP.resolve(2)
@@ -135,7 +135,7 @@ ackP.all([
 ```
 
 - Resolve a promise value that is an array of promises, into an array of values
-```
+```javascript
 ackP.resolve(2)
 .then(function(x){
   return [
@@ -153,7 +153,7 @@ ackP.resolve(2)
 ## promisify
 Promisify expects a function, where that function expects that it's last argument will be a callback. Returns wrapper of defined function, that when called, returns a promise of calling defined function
 
-```
+```javascript
 function databaseCall(a,b,callback){
   setTimeout(function(){
     callback(null,55)
