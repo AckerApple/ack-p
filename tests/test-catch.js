@@ -15,7 +15,7 @@ module.exports = function(){
       e.code = 404
       throw e
     })
-    .catch(404,e=>{
+    .catch(404,function(e){
       assert.equal(e.code, 404)
     })
     .then(done).catch(done)
@@ -156,18 +156,18 @@ console.log('56',22)
     .then(done).catch(done)
   })
 
-  it('throw-in-catch',done=>{
-    p.then(()=>{
+  it('throw-in-catch', function(done){
+    p.then(function(){
       throw 44
     })
-    .catch(e=>{
+    .catch(function(e){
       assert.equal(e, 44)
       throw 55
     })
-    .then(()=>{
+    .then(function(){
       throw 'we should never get here'
     })
-    .catch(e=>{
+    .catch(function(e){
       assert.equal(e, 55)
     })
     .then(done).catch(done)
