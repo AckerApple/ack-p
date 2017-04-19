@@ -22,40 +22,42 @@ module.exports = function(){
     })
   })
 
-  it('#finally',done=>{
+  it('#finally',function(done){
     var counter = 0
-    p.then(()=>{
+    p.then(function(){
       return 77
     })
-    .finally(()=>{
+    .finally(function(){
       ++counter
       return 99
     })
-    .then(r=>{
+    .then(function(r){
       assert.equal(r, 77)
       throw 66
     })
-    .finally(()=>{
+    .finally(function(){
       ++counter
     })
-    .catch(e=>{
+    .catch(function(e){
       assert.equal(e, 66)
       return 988
     })
-    .finally(()=>{
+    .finally(function(){
       ++counter
     })
-    .then(r=>{
+    .then(function(r){
       assert.equal(r, 988)
       assert.equal(counter, 3)
     })
-    .callback(callback=>{
-      setTimeout(()=>callback(99), 10)
+    .callback(function(callback){
+      setTimeout(function(){
+        callback(99)
+      }, 10)
     })
-    .finally(()=>{
+    .finally(function(){
       ++counter
     })
-    .catch(r=>{
+    .catch(function(r){
       assert.equal(r, 99)
       assert.equal(counter, 4)
     })
