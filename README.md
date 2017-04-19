@@ -1,4 +1,8 @@
 # ack-p, the Acker way of implementing promises
+[![build status](https://travis-ci.org/AckerApple/ack-p.svg)](http://travis-ci.org/AckerApple/ack-p)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+[![NPM version](https://img.shields.io/npm/v/ack-p.svg?style=flat-square)](https://www.npmjs.com/package/ack-p)
+
 Extra full featured Promise-like implementation, that works with and just like you wished other Promise libraries would.
 
 Back in the Internet Explorer days, this code library was originally just one persons efforts to make async functionality cleaner and easier to implement. Now, this code has been matured into a Promise library specfically intended to stay competitive with [bluebird](http://bluebirdjs.com). Ack-p is intended to do Promises with a different approach without the restrictions of the Promises/A+ spefication that [bluebird](http://bluebirdjs.com) adheres to.
